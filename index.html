@@ -40,6 +40,7 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
+            gap: 10%;
         }
         
         .login-option button {
@@ -49,6 +50,13 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        
+        .login-option button img {
+            margin-right: 10px;
+            max-height: 20px;
         }
         
         @media (min-width: 601px) {
@@ -84,8 +92,14 @@
     <div class="container">
         <h1>تسجيل الدخول</h1>
         <div class="login-option">
-            <button>تسجيل الدخول للعملاء</button>
-            <button>تسجيل الدخول للمقاولين</button>
+            <button>
+                <img src="https://www.marchespublics.gov.ma/pmmp/themes/Acces-acheteur-public.png" alt="Image 1">
+                تسجيل الدخول للعملاء
+            </button>
+            <button>
+                <img src="https://www.marchespublics.gov.ma/pmmp/themes/Acces-Entreprise.png" alt="Image 2">
+                تسجيل الدخول للمقاولين
+            </button>
         </div>
         <!-- Add your login form here -->
     </div>
