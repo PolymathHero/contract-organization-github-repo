@@ -48,6 +48,23 @@
         .login-option button:hover {
             background-color: #0056b3;
         }
+        
+        /* Media queries for mobile devices */
+        @media (max-width: 600px) {
+            .container {
+                max-width: 100%;
+                padding: 10px;
+            }
+            
+            .login-option {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .login-option button {
+                margin-bottom: 10px;
+            }
+        }
     </style>
 </head>
 <body>
