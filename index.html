@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Your website description here">
     <meta name="keywords" content="your, keywords, here">
-    <meta name="author" content="Your Name">
     <title>تسجيل الدخول</title>
     <style>
-        /* Add your CSS styles here to decorate the page */
         body {
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
@@ -17,11 +16,15 @@
             font-size: 16px;
         }
 
+        input {
+            font-size: inherit;
+        }
+
         button {
             cursor: pointer;
             font-size: inherit;
         }
-        
+
         .container {
             max-width: 400px;
             margin: 0 auto;
@@ -29,20 +32,29 @@
             background-color: #fff;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: right;
         }
-        
+
         h1 {
             text-align: center;
             color: #333;
         }
-        
-        .login-option {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            gap: 10%;
+
+        .form-group {
+            margin-bottom: 15px;
         }
-        
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
         .login-option button {
             padding: 10px 20px;
             background-color: #007bff;
@@ -50,59 +62,195 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .login-option button:hover {
+            background-color: #0056b3;
+        }
+
+        .status {
+            margin-top: 20px;
+            text-align: center;
+            color: green;
+        }
+
+        .signin-buttons {
             display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .signin-buttons button {
+            position: relative;
+            padding: 10px;
+            width: 150px;
+            height: 150px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
             align-items: center;
+            flex-direction: column;
+            text-align: center;
         }
-        
-        .login-option button img {
-            margin-right: 10px;
-            max-height: 20px;
+
+        .signin-buttons button img {
             pointer-events: none;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 10px;
         }
-        
-        @media (min-width: 601px) {
-            .login-option button:hover {
-                background-color: #0056b3;
-            }
+
+        .signin-buttons button:hover {
+            background-color: #0056b3;
         }
-        
-        /* Media queries for mobile devices */
+
+        #login-form {
+            display: none;
+        }
+
+        .back-button {
+            margin-bottom: 10px;
+            background-color: #6c757d;
+            color: #fff;
+        }
+
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+
         @media (max-width: 600px) {
             .container {
                 max-width: 100%;
                 padding: 10px;
             }
-            
-            .login-option {
-                flex-direction: column;
-                align-items: center;
-            }
-            
+
             .login-option button {
                 margin-bottom: 10px;
             }
 
-            /* Prevent user zoom on double tap */
             body {
                 touch-action: manipulation;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>تسجيل الدخول</h1>
-        <div class="login-option">
-            <button>
-                <img src="https://www.marchespublics.gov.ma/pmmp/themes/Acces-acheteur-public.png" alt="Image 1">
-                تسجيل الدخول للعملاء
+        <div class="signin-buttons">
+            <button onclick="showLoginForm('contractor')">
+                <img src="https://www.marchespublics.gov.ma/pmmp/themes/Acces-Entreprise.png" alt="Contractor">
+                تسجيل دخول المقاولين
             </button>
-            <button>
-                <img src="https://www.marchespublics.gov.ma/pmmp/themes/Acces-Entreprise.png" alt="Image 2">
-                تسجيل الدخول للمقاولين
+            <button onclick="showLoginForm('client')">
+                <img src="https://www.marchespublics.gov.ma/pmmp/themes/Acces-acheteur-public.png" alt="Client">
+                تسجيل دخول العملاء
             </button>
         </div>
-        <!-- Add your login form here -->
+        <div id="login-form">
+            <button class="back-button" onclick="showSigninButtons()">العودة</button>
+            <div class="form-group">
+                <label for="email">البريد الإلكتروني</label>
+                <input type="email" id="email" placeholder="أدخل بريدك الإلكتروني">
+            </div>
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <input type="password" id="password" placeholder="أدخل كلمة المرور">
+            </div>
+            <div class="login-option">
+                <button onclick="signUp()">إنشاء حساب</button>
+                <button onclick="signIn()">تسجيل الدخول</button>
+                <button onclick="signOut()">تسجيل الخروج</button>
+            </div>
+            <div id="status" class="status"></div>
+        </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://opyjzrczlxmwgspveoyh.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9weWp6cmN6bHhtd2dzcHZlb3loIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM5NjI2NzIsImV4cCI6MjAyOTUzODY3Mn0.Ysi-eZwxqll0_40l6cKP934yQEDBSDaJ5tcgB9yZPDw';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        function showLoginForm(userType) {
+            document.getElementById('login-form').style.display = 'block';
+            document.querySelector('.signin-buttons').style.display = 'none';
+            document.getElementById('status').innerText = `تسجيل دخول ${userType === 'contractor' ? 'المقاولين' : 'العملاء'}`;
+        }
+
+        function showSigninButtons() {
+            document.getElementById('login-form').style.display = 'none';
+            document.querySelector('.signin-buttons').style.display = 'flex';
+            document.getElementById('status').innerText = '';
+        }
+
+        async function signUp() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { user, error } = await supabaseClient.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                console.error('Error signing up:', error.message);
+                document.getElementById('status').innerText = 'خطأ في إنشاء الحساب: ' + error.message;
+            } else {
+                console.log('User signed up:', user);
+                document.getElementById('status').innerText = 'تم إنشاء الحساب بنجاح';
+                window.location.href = 'personal_info.html';
+            }
+        }
+
+        async function signIn() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { user, session, error } = await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                console.error('Error signing in:', error.message);
+                document.getElementById('status').innerText = 'خطأ في تسجيل الدخول: ' + error.message;
+            } else {
+                console.log('User signed in:', user);
+                console.log('Session:', session);
+                document.getElementById('status').innerText = 'تم تسجيل الدخول بنجاح';
+                window.location.href = 'portal.html';
+            }
+        }
+
+        async function signOut() {
+            const { error } = await supabaseClient.auth.signOut();
+
+            if (error) {
+                console.error('Error signing out:', error.message);
+                document.getElementById('status').innerText = 'خطأ في تسجيل الخروج: ' + error.message;
+            } else {
+                console.log('User signed out successfully');
+                document.getElementById('status').innerText = 'تم تسجيل الخروج بنجاح';
+            }
+        }
+
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN') {
+                console.log('User signed in:', session.user);
+                document.getElementById('status').innerText = 'تم تسجيل الدخول بنجاح';
+            } else if (event === 'SIGNED_OUT') {
+                console.log('User signed out');
+                document.getElementById('status').innerText = 'تم تسجيل الخروج بنجاح';
+            }
+        });
+    </script>
 </body>
+
 </html>

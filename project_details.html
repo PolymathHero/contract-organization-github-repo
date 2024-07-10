@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your website description here">
+    <meta name="keywords" content="your, keywords, here">
+    <title>تفاصيل المشروع</title>
+    <style>
+        /* Add your CSS styles here to decorate the page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        button {
+            cursor: pointer;
+            font-size: inherit;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: right;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .login-option button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .login-option button:hover {
+            background-color: #0056b3;
+        }
+
+        .status {
+            margin-top: 20px;
+            text-align: center;
+            color: green;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                max-width: 100%;
+                padding: 10px;
+            }
+
+            .login-option button {
+                margin-bottom: 10px;
+            }
+
+            /* Prevent user zoom on double tap */
+            body {
+                touch-action: manipulation;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>تفاصيل المشروع</h1>
+        <div class="form-group">
+            <label for="project_name">اسم المشروع</label>
+            <input type="text" id="project_name" placeholder="أدخل اسم المشروع">
+        </div>
+        <div class="form-group">
+            <label for="project_description">وصف المشروع</label>
+            <textarea id="project_description" placeholder="أدخل وصف المشروع"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="start_date">تاريخ البدء</label>
+            <input type="date" id="start_date">
+        </div>
+        <div class="form-group">
+            <label for="end_date">تاريخ الانتهاء</label>
+            <input type="date" id="end_date">
+        </div>
+        <div class="form-group">
+            <label for="budget">الميزانية</label>
+            <input type="number" id="budget" placeholder="أدخل الميزانية">
+        </div>
+        <div class="login-option">
+            <button onclick="saveProjectDetails()">حفظ تفاصيل المشروع</button>
+        </div>
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://opyjzrczlxmwgspveoyh.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9weWp6cmN6bHhtd2dzcHZlb3loIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM5NjI2NzIsImV4cCI6MjAyOTUzODY3Mn0.Ysi-eZwxqll0_40l6cKP934yQEDBSDaJ5tcgB9yZPDw';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function saveProjectDetails() {
+            const project_name = document.getElementById('project_name').value;
+            const project_description = document.getElementById('project_description').value;
+            const start_date = document.getElementById('start_date').value;
+            const end_date = document.getElementById('end_date').value;
+            const budget = document.getElementById('budget').value;
+
+            const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+            if (userError) {
+                console.error('Error fetching user:', userError.message);
+                document.getElementById('status').innerText = 'خطأ في جلب المستخدم';
+                return;
+            }
+
+            if (!user) {
+                document.getElementById('status').innerText = 'المستخدم غير مسجل الدخول';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('project_details_table')
+                .upsert(
+                    { user_id: user.id, project_name, project_description, start_date, end_date, budget },
+                    { onConflict: ['user_id', 'project_name'] }
+                );
+
+            if (error) {
+                console.error('Error saving project details:', error.message);
+                document.getElementById('status').innerText = 'خطأ في حفظ تفاصيل المشروع: ' + error.message;
+            } else {
+                console.log('Project details saved:', data);
+                document.getElementById('status').innerText = 'تم حفظ تفاصيل المشروع بنجاح';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+            if (userError) {
+                console.error('Error fetching user:', userError.message);
+                document.getElementById('status').innerText = 'خطأ في جلب المستخدم';
+                return;
+            }
+
+            if (!user) {
+                document.getElementById('status').innerText = 'المستخدم غير مسجل الدخول';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('project_details_table')
+                .select('*')
+                .eq('user_id', user.id)
+                .maybeSingle();
+
+            if (error) {
+                console.error('Error fetching project details:', error.message);
+            } else if (data) {
+                document.getElementById('project_name').value = data.project_name || '';
+                document.getElementById('project_description').value = data.project_description || '';
+                document.getElementById('start_date').value = data.start_date || '';
+                document.getElementById('end_date').value = data.end_date || '';
+                document.getElementById('budget').value = data.budget || '';
+            }
+        });
+    </script>
+</body>
+</html>

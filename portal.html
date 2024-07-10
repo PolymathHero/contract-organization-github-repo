@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your website description here">
+    <meta name="keywords" content="your, keywords, here">
+    <title>الصفحة الرئيسية</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        button {
+            cursor: pointer;
+            font-size: inherit;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: right;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .tab {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tab button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            border: none;
+            background-color: #007bff;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .tab button.active {
+            background-color: #0056b3;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .login-option button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .login-option button:hover {
+            background-color: #0056b3;
+        }
+
+        .status {
+            margin-top: 20px;
+            text-align: center;
+            color: green;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                max-width: 100%;
+                padding: 10px;
+            }
+
+            .login-option button {
+                margin-bottom: 10px;
+            }
+
+            body {
+                touch-action: manipulation;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>الصفحة الرئيسية</h1>
+        <div class="tab">
+            <button class="active" onclick="showTab('personal-info')">معلومات شخصية</button>
+            <button onclick="showTab('project-details')">تفاصيل المشروع</button>
+        </div>
+        <div id="personal-info" class="tab-content active">
+            <div class="form-group">
+                <label for="full_name">الاسم الكامل</label>
+                <input type="text" id="full_name" placeholder="أدخل اسمك الكامل">
+            </div>
+            <div class="form-group">
+                <label for="phone_number">رقم الهاتف</label>
+                <input type="text" id="phone_number" placeholder="أدخل رقم هاتفك">
+            </div>
+            <div class="form-group">
+                <label for="address">العنوان</label>
+                <textarea id="address" placeholder="أدخل عنوانك"></textarea>
+            </div>
+            <div class="login-option">
+                <button onclick="savePersonalInfo()">حفظ المعلومات</button>
+            </div>
+            <div id="personal-status" class="status"></div>
+        </div>
+        <div id="project-details" class="tab-content">
+            <div class="form-group">
+                <label for="project_name">اسم المشروع</label>
+                <input type="text" id="project_name" placeholder="أدخل اسم المشروع">
+            </div>
+            <div class="form-group">
+                <label for="project_description">وصف المشروع</label>
+                <textarea id="project_description" placeholder="أدخل وصف المشروع"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="start_date">تاريخ البدء</label>
+                <input type="date" id="start_date">
+            </div>
+            <div class="form-group">
+                <label for="end_date">تاريخ الانتهاء</label>
+                <input type="date" id="end_date">
+            </div>
+            <div class="form-group">
+                <label for="budget">الميزانية</label>
+                <input type="number" id="budget" placeholder="أدخل الميزانية">
+            </div>
+            <div class="login-option">
+                <button onclick="saveProjectDetails()">حفظ تفاصيل المشروع</button>
+            </div>
+            <div id="project-status" class="status"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://opyjzrczlxmwgspveoyh.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9weWp6cmN6bHhtd2dzcHZlb3loIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM5NjI2NzIsImV4cCI6MjAyOTUzODY3Mn0.Ysi-eZwxqll0_40l6cKP934yQEDBSDaJ5tcgB9yZPDw';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await fetchPersonalInfo();
+            await fetchProjectDetails();
+        });
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        async function fetchPersonalInfo() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+
+            if (!user) {
+                document.getElementById('personal-status').innerText = 'المستخدم غير مسجل الدخول';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('contract_organization_table')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching personal info:', error.message);
+                document.getElementById('personal-status').innerText = 'خطأ في جلب المعلومات: ' + error.message;
+            } else {
+                if (data) {
+                    document.getElementById('full_name').value = data.full_name || '';
+                    document.getElementById('phone_number').value = data.phone_number || '';
+                    document.getElementById('address').value = data.address || '';
+                }
+            }
+        }
+
+        async function fetchProjectDetails() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+
+            if (!user) {
+                document.getElementById('project-status').innerText = 'المستخدم غير مسجل الدخول';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('project_details_table')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching project details:', error.message);
+                document.getElementById('project-status').innerText = 'خطأ في جلب تفاصيل المشروع: ' + error.message;
+            } else {
+                if (data) {
+                    document.getElementById('project_name').value = data.project_name || '';
+                    document.getElementById('project_description').value = data.project_description || '';
+                    document.getElementById('start_date').value = data.start_date || '';
+                    document.getElementById('end_date').value = data.end_date || '';
+                    document.getElementById('budget').value = data.budget || '';
+                }
+            }
+        }
+
+        async function savePersonalInfo() {
+            const full_name = document.getElementById('full_name').value;
+            const phone_number = document.getElementById('phone_number').value;
+            const address = document.getElementById('address').value;
+
+            const { data: { user } } = await supabaseClient.auth.getUser();
+
+            if (!user) {
+                document.getElementById('personal-status').innerText = 'المستخدم غير مسجل الدخول';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('contract_organization_table')
+                .upsert({ user_id: user.id, full_name, phone_number, address }, { onConflict: ['user_id'] });
+
+            if (error) {
+                console.error('Error saving personal info:', error.message);
+                document.getElementById('personal-status').innerText = 'خطأ في حفظ المعلومات: ' + error.message;
+            } else {
+                console.log('Personal info saved:', data);
+                document.getElementById('personal-status').innerText = 'تم حفظ المعلومات بنجاح';
+            }
+        }
+
+        async function saveProjectDetails() {
+            const project_name = document.getElementById('project_name').value;
+            const project_description = document.getElementById('project_description').value;
+            const start_date = document.getElementById('start_date').value || null;
+            const end_date = document.getElementById('end_date').value || null;
+            const budget = document.getElementById('budget').value || null;
+
+            const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+            if (userError) {
+                console.error('Error fetching user:', userError.message);
+                document.getElementById('project-status').innerText = 'خطأ في جلب المستخدم';
+                return;
+            }
+
+            if (!user) {
+                document.getElementById('project-status').innerText = 'المستخدم غير مسجل الدخول';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('project_details_table')
+                .upsert(
+                    { user_id: user.id, project_name, project_description, start_date, end_date, budget },
+                    { onConflict: ['user_id', 'project_name'] }
+                );
+
+            if (error) {
+                console.error('Error saving project details:', error.message);
+                document.getElementById('project-status').innerText = 'خطأ في حفظ تفاصيل المشروع: ' + error.message;
+            } else {
+                console.log('Project details saved:', data);
+                document.getElementById('project-status').innerText = 'تم حفظ تفاصيل المشروع بنجاح';
+            }
+        }
+    </script>
+</body>
+
+</html>

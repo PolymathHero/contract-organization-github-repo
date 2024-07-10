@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your website description here">
+    <meta name="keywords" content="your, keywords, here">
+    <title>معلومات شخصية</title>
+    <style>
+        /* Add your CSS styles here to decorate the page */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        button {
+            cursor: pointer;
+            font-size: inherit;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: right;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        .login-option button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .login-option button:hover {
+            background-color: #0056b3;
+        }
+
+        .status {
+            margin-top: 20px;
+            text-align: center;
+            color: green;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                max-width: 100%;
+                padding: 10px;
+            }
+
+            .login-option button {
+                margin-bottom: 10px;
+            }
+
+            /* Prevent user zoom on double tap */
+            body {
+                touch-action: manipulation;
+            }
+        }
+    </style>
+    <!-- Install Supabase JavaScript Client Library via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- End install Supabase JavaScript Client Library via CDN -->
+</head>
+
+<body>
+    <div class="container">
+        <h1>معلومات شخصية</h1>
+        <div class="form-group">
+            <label for="full_name">الاسم الكامل</label>
+            <input type="text" id="full_name" placeholder="أدخل اسمك الكامل">
+        </div>
+        <div class="form-group">
+            <label for="phone_number">رقم الهاتف</label>
+            <input type="text" id="phone_number" placeholder="أدخل رقم هاتفك">
+        </div>
+        <div class="form-group">
+            <label for="address">العنوان</label>
+            <textarea id="address" placeholder="أدخل عنوانك"></textarea>
+        </div>
+        <div class="login-option">
+            <button onclick="savePersonalInfo()">حفظ المعلومات</button>
+            <button onclick="nextPage()">الصفحة التالية</button>
+        </div>
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        // Initialize Supabase client
+        const supabaseUrl = 'https://opyjzrczlxmwgspveoyh.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9weWp6cmN6bHhtd2dzcHZlb3loIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTM5NjI2NzIsImV4cCI6MjAyOTUzODY3Mn0.Ysi-eZwxqll0_40l6cKP934yQEDBSDaJ5tcgB9yZPDw';
+        const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function savePersonalInfo() {
+            const full_name = document.getElementById('full_name').value;
+            const phone_number = document.getElementById('phone_number').value;
+            const address = document.getElementById('address').value;
+            
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            
+            if (!user) {
+                document.getElementById('status').innerText = 'المستخدم غير مسجل الدخول';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('contract_organization_table')
+                .upsert({ user_id: user.id, full_name, phone_number, address }, { onConflict: ['user_id'] });
+
+            if (error) {
+                console.error('Error saving personal info:', error.message);
+                document.getElementById('status').innerText = 'خطأ في حفظ المعلومات: ' + error.message;
+            } else {
+                console.log('Personal info saved:', data);
+                document.getElementById('status').innerText = 'تم حفظ المعلومات بنجاح';
+            }
+        }
+
+        async function nextPage() {
+            window.location.href = 'project_details.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            
+            if (!user) {
+                document.getElementById('status').innerText = 'المستخدم غير مسجل الدخول';
+                return;
+            }
+
+            const { data, error } = await supabaseClient
+                .from('contract_organization_table')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching personal info:', error.message);
+            } else {
+                document.getElementById('full_name').value = data.full_name || '';
+                document.getElementById('phone_number').value = data.phone_number || '';
+                document.getElementById('address').value = data.address || '';
+            }
+        });
+    </script>
+</body>
+
+</html>
