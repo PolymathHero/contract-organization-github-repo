@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +15,14 @@
             margin: 0;
             padding: 0;
             font-size: 16px;
+        }
+
+        input {
+            font-size: inherit;
+        }
+
+        textarea {
+            font-size: inherit;
         }
 
         button {
@@ -96,6 +105,7 @@
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
     <div class="container">
         <h1>تفاصيل المشروع</h1>
@@ -163,6 +173,7 @@
             } else {
                 console.log('Project details saved:', data);
                 document.getElementById('status').innerText = 'تم حفظ تفاصيل المشروع بنجاح';
+                window.location.href = 'portal.html';
             }
         }
 
@@ -198,4 +209,5 @@
         });
     </script>
 </body>
+
 </html>

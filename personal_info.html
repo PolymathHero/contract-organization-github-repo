@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
@@ -15,6 +15,14 @@
             margin: 0;
             padding: 0;
             font-size: 16px;
+        }
+
+        input {
+            font-size: inherit;
+        }
+
+        textarea {
+            font-size: inherit;
         }
 
         button {
@@ -71,10 +79,6 @@
             margin-bottom: 10px;
         }
 
-        .login-option button:hover {
-            background-color: #0056b3;
-        }
-
         .status {
             margin-top: 20px;
             text-align: center;
@@ -94,6 +98,10 @@
             /* Prevent user zoom on double tap */
             body {
                 touch-action: manipulation;
+            }
+
+            .login-option button:hover {
+                background-color: #0056b3;
             }
         }
     </style>
@@ -119,7 +127,6 @@
         </div>
         <div class="login-option">
             <button onclick="savePersonalInfo()">حفظ المعلومات</button>
-            <button onclick="nextPage()">الصفحة التالية</button>
         </div>
         <div id="status" class="status"></div>
     </div>
@@ -134,9 +141,15 @@
             const full_name = document.getElementById('full_name').value;
             const phone_number = document.getElementById('phone_number').value;
             const address = document.getElementById('address').value;
-            
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            
+
+            const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+            if (userError) {
+                console.error('Error fetching user:', userError.message);
+                document.getElementById('status').innerText = 'خطأ في جلب المستخدم';
+                return;
+            }
+
             if (!user) {
                 document.getElementById('status').innerText = 'المستخدم غير مسجل الدخول';
                 return;
@@ -152,16 +165,19 @@
             } else {
                 console.log('Personal info saved:', data);
                 document.getElementById('status').innerText = 'تم حفظ المعلومات بنجاح';
+                window.location.href = 'project_details.html'; // Redirect to the next page
             }
         }
 
-        async function nextPage() {
-            window.location.href = 'project_details.html';
-        }
-
         document.addEventListener('DOMContentLoaded', async () => {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            
+            const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
+
+            if (userError) {
+                console.error('Error fetching user:', userError.message);
+                document.getElementById('status').innerText = 'خطأ في جلب المستخدم';
+                return;
+            }
+
             if (!user) {
                 document.getElementById('status').innerText = 'المستخدم غير مسجل الدخول';
                 return;
